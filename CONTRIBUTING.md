@@ -12,6 +12,12 @@ Toggle the setting
 
 ```nu
 $env.config.inline_diagnostics = true
+$env.config.inline_diagnostics = {
+  ignored: ["snake_case_variables"]
+  rules: { trailing_whitespace: "error" }
+  groups: { naming: "warning" }
+  max_pipeline_length: 100
+}
 ```
 
 Type a prompt that contains a violation and verify diagnostics appear below the prompt line.

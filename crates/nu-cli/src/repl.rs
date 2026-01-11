@@ -420,15 +420,22 @@ fn loop_iteration(ctx: LoopContext) -> (bool, Stack, Reedline) {
     perf!("reedline builder", start_time, use_color);
 
     #[cfg(feature = "inline-diagnostics")]
-    if config.inline_diagnostics {
+    if !matches!(config.inline_diagnostics, nu_protocol::Value::Nothing { .. }) {
+        use nu_protocol::FromValue;
+
         let diagnostics_config = DiagnosticsConfig::new()
             .with_min_severity(DiagnosticSeverity::Hint)
             .with_display_mode(DiagnosticsDisplayMode::Both)
             .with_debounce_ms(0);
+
+        let lint_config = nu_lint::Config::from_value(config.inline_diagnostics.clone())
+            .unwrap_or_default();
+
+        let provider =
+            nu_lint::reedline_adapter::NuLintDiagnosticsProvider::with_config(lint_config);
+
         line_editor = line_editor
-            .with_diagnostics(Box::new(
-                nu_lint::reedline_adapter::NuLintDiagnosticsProvider::new(),
-            ))
+            .with_diagnostics(Box::new(provider))
             .with_diagnostics_config(diagnostics_config);
     }
 

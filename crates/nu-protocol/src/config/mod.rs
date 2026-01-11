@@ -55,7 +55,8 @@ pub struct Config {
     pub completions: CompletionConfig,
     pub edit_mode: EditBindings,
     pub show_hints: bool,
-    pub inline_diagnostics: bool,
+    /// Inline diagnostics configuration for nu-lint. If Nothing, disabled. If record, passed to nu-lint.
+    pub inline_diagnostics: Value,
     pub history: HistoryConfig,
     pub keybindings: Vec<ParsedKeybinding>,
     pub menus: Vec<ParsedMenu>,
@@ -115,7 +116,7 @@ impl Default for Config {
             bracketed_paste: true,
             edit_mode: EditBindings::default(),
             show_hints: true,
-            inline_diagnostics: false,
+            inline_diagnostics: Value::nothing(Span::unknown()),
 
             shell_integration: ShellIntegrationConfig::default(),
 
@@ -169,7 +170,23 @@ impl UpdateFromValue for Config {
                 "use_ansi_coloring" => self.use_ansi_coloring.update(val, path, errors),
                 "edit_mode" => self.edit_mode.update(val, path, errors),
                 "show_hints" => self.show_hints.update(val, path, errors),
-                "inline_diagnostics" => self.inline_diagnostics.update(val, path, errors),
+                "inline_diagnostics" => match val {
+                    Value::Nothing { .. } | Value::Record { .. } => {
+                        self.inline_diagnostics = val.clone();
+                    }
+                    Value::Bool { val: true, .. } => {
+                        self.inline_diagnostics =
+                            Value::record(crate::Record::new(), val.span());
+                    }
+                    Value::Bool { val: false, .. } => {
+                        self.inline_diagnostics = Value::nothing(val.span());
+                    }
+                    _ => errors.type_mismatch(
+                        path,
+                        Type::custom("record, bool, or nothing"),
+                        val,
+                    ),
+                },
                 "shell_integration" => self.shell_integration.update(val, path, errors),
                 "buffer_editor" => match val {
                     Value::Nothing { .. } | Value::String { .. } => {
