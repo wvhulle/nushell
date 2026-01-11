@@ -31,6 +31,7 @@ nu-color-config = { path = "../nu-color-config", version = "0.109.2" }
 nu-experimental = { path = "../nu-experimental", version = "0.109.2" }
 nu-ansi-term = { workspace = true }
 reedline = { workspace = true, features = ["bashisms"] }
+nu-lint = { workspace = true, optional = true }
 
 chrono = { default-features = false, features = ["std"], workspace = true }
 crossterm = { workspace = true }
@@ -51,6 +52,7 @@ which = { workspace = true }
 plugin = ["nu-plugin-engine"]
 system-clipboard = ["reedline/system_clipboard"]
 sqlite = ["reedline/sqlite", "nu-protocol/sqlite"]
+inline-diagnostics = ["nu-lint"]
 
 [lints]
 workspace = true

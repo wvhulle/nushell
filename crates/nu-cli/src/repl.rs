@@ -40,6 +40,8 @@ use reedline::{
     CursorConfig, CwdAwareHinter, DefaultCompleter, EditCommand, Emacs, FileBackedHistory,
     HistorySessionId, Reedline, Vi,
 };
+#[cfg(feature = "inline-diagnostics")]
+use reedline::{DiagnosticSeverity, DiagnosticsConfig, DiagnosticsDisplayMode};
 use std::sync::atomic::Ordering;
 use std::{
     collections::HashMap,
@@ -416,6 +418,19 @@ fn loop_iteration(ctx: LoopContext) -> (bool, Stack, Reedline) {
         });
 
     perf!("reedline builder", start_time, use_color);
+
+    #[cfg(feature = "inline-diagnostics")]
+    if config.inline_diagnostics {
+        let diagnostics_config = DiagnosticsConfig::new()
+            .with_min_severity(DiagnosticSeverity::Hint)
+            .with_display_mode(DiagnosticsDisplayMode::Both)
+            .with_debounce_ms(0);
+        line_editor = line_editor
+            .with_diagnostics(Box::new(
+                nu_lint::reedline_adapter::NuLintDiagnosticsProvider::new(),
+            ))
+            .with_diagnostics_config(diagnostics_config);
+    }
 
     let style_computer = StyleComputer::from_config(engine_state, &stack_arc);
 

@@ -1,8 +1,27 @@
 # Contributing
 
+## Inline Diagnostics (experimental)
+
+To test nushell with inline diagnostics (real-time linting in the REPL):
+
+```sh
+nix develop ./scripts/nix -c cargo run --features inline-diagnostics
+```
+
+Toggle the setting
+
+```nu
+$env.config.inline_diagnostics = true
+```
+
+Type a prompt that contains a violation and verify diagnostics appear below the prompt line.
+
+---
+
 Welcome to Nushell and thank you for considering contributing!
 
 ## Table of contents
+
 - [Tips for submitting PRs](#tips-for-submitting-prs)
 - [Proposing design changes](#proposing-design-changes)
 - [Developing](#developing)
@@ -36,7 +55,7 @@ You should try to keep it **brief and simple to understand**, and focus on the w
 
 The release notes summary section doesn't need to be filled until your PR is finalized. Feel free to leave it blank until the PR has undergone review already. Of course, this section can also be useful to demonstrate to reviewers how your proposed changed will work, so don't hesitate to fill in the section if it helps you explain your PR.
 
-Please make sure to consider both the *intended changes*, such as additions or deliberate breaking changes **and** possible *side effects* that might change how users interact with a command or feature. It's important to think carefully about the ways that your PR might affect any aspect of the user experience, and to document these changes even if they seem minor or aren't directly related to the main purpose of the PR.
+Please make sure to consider both the _intended changes_, such as additions or deliberate breaking changes **and** possible _side effects_ that might change how users interact with a command or feature. It's important to think carefully about the ways that your PR might affect any aspect of the user experience, and to document these changes even if they seem minor or aren't directly related to the main purpose of the PR.
 
 If you're not sure what to put here, or need some help, **a core team member would be glad to help you out**. We may also make some tweaks to your release notes section. Please don't take it personally, we just want to make sure our release notes are polished and easy to understand. Once the release notes section is finalized, we'll add the `notes:ready` label to indicate that your summary section is ready to be included in the actual release notes.
 
@@ -101,6 +120,7 @@ So, please, reach out and tell us what you want to do.
 This will significantly increase the chance of your PR being accepted.
 
 The review process can be summarized as follows:
+
 1. You want to make some change to Nushell that is more involved than simple bug-fixing.
 2. Go to [Discord](https://discordapp.com/invite/NtAbbGn) or a [GitHub issue](https://github.com/nushell/nushell/issues/new/choose) and chat with some core team members and/or other contributors about it.
 3. After getting a green light from the core team, implement the feature, open a pull request (PR) and write a concise but comprehensive description of the change.
@@ -127,9 +147,10 @@ cargo build
 It is good practice to cover your changes with a test. Also, try to think about corner cases and various ways how your changes could break. Cover those in the tests as well.
 
 Tests can be found in different places:
-* `/tests`
-* command examples
-* crate-specific tests
+
+- `/tests`
+- command examples
+- crate-specific tests
 
 Most of the tests are built upon the `nu-test-support` crate. For testing specific features, such as running Nushell in a REPL mode, we have so called "testbins". For simple tests, you can find `run_test()` and `fail_test()` functions.
 
@@ -219,14 +240,15 @@ Read cargo's documentation for more details: https://doc.rust-lang.org/cargo/ref
 
 ### Experimental options
 
-We sometimes add new behavior behind [**experimental options**](https://www.nushell.sh/blog/2025-07-23-nushell_0_106_0.html#experimental-options-toc). 
+We sometimes add new behavior behind [**experimental options**](https://www.nushell.sh/blog/2025-07-23-nushell_0_106_0.html#experimental-options-toc).
 These are opt-in (or opt-out) flags that let us try out changes without affecting everyone by default.
 Before introducing a new option, make sure the core team agrees roughly with that experimental option.
 
 If you introduce a new experimental option, you must also:
 
-1. **Open a tracking issue** using the [Experimental Option Tracking template](https://github.com/nushell/nushell/issues/new/choose).  
-  - Link the issue in your implementation using `ExperimentalOptionMarker::ISSUE`.
+1. **Open a tracking issue** using the [Experimental Option Tracking template](https://github.com/nushell/nushell/issues/new/choose).
+
+- Link the issue in your implementation using `ExperimentalOptionMarker::ISSUE`.
 
 2. **Document the behavior** in the tracking issue with a short description and before/after examples.
 
@@ -234,15 +256,14 @@ If you introduce a new experimental option, you must also:
 
 This ensures experimental options are discoverable, tracked properly, and easy to follow up on later.
 
-
 ## Git etiquette
 
 As nushell thrives on its broad base of volunteer contributors and maintainers with different backgrounds we have a few guidelines for how we best utilize git and GitHub for our contributions. We strive to balance three goals with those recommendations:
 
 1. The **volunteer maintainers and contributors** can easily follow the changes you propose, gauge the impact, and come to help you or make a decision.
 2. **You as a contributor** can focus most of your time on improving the quality of the nushell project and contributing your expertise to the code or documentation.
-3. Making sure we can trace back *why* decisions were made in the past.
-This includes discarded approaches. Also we want to quickly identify regressions and fix when something broke.
+3. Making sure we can trace back _why_ decisions were made in the past.
+   This includes discarded approaches. Also we want to quickly identify regressions and fix when something broke.
 
 ### How we merge PRs
 
@@ -277,6 +298,7 @@ Stylistic fixes and housekeeping can be bundled up into singular PRs.
 The PR title should be concise but contain everything for a contributor to know if they should help out in the review of this particular change.
 
 **DON'T**
+
 - `Update file/in/some/deeply/nested/path.rs`
   - Why are you making this change?
 - `Fix 2134`
@@ -289,12 +311,13 @@ The PR title should be concise but contain everything for a contributor to know 
   - Maybe break up into smaller commits or PRs if the title already appears too long?
 
 **DO**
+
 - Mention the nushell feature or command that is affected.
   - ``Fix URL parsing in `http get` (issue #1234)``
 - You can mention the issue number if other context is there.
   - In general, mention all related issues in the description to crosslink (e.g. `Fixes #1234`, `Closes #6789`)
 - For internal changes mention the area or symbols affected if it helps to clarify
-  - ``Factor out `quote_string()` from parser to reuse in `explore` ``
+  - `` Factor out `quote_string()` from parser to reuse in `explore` ``
 
 ### Review process / Merge conflicts
 
@@ -302,6 +325,7 @@ The PR title should be concise but contain everything for a contributor to know 
 > Keep in mind that the maintainers are volunteers that need to allocate their attention to several different areas and active PRs. We will try to get back to you as soon as possible.
 
 You can help us to make the review process a smooth experience:
+
 - Testing:
   - We generally review in detail after all the tests pass. Let us know if there is a problem you want to discuss to fix a test failure or forces us to accept a breaking change.
   - If you fix a bug, it is highly recommended that you add a test that reproduces the original issue/panic in a minimal form.
@@ -314,7 +338,7 @@ You can help us to make the review process a smooth experience:
     - GitHub's UI presents reviewers with less options to compare diffs
     - fetched branches for experimentation become invalid!
     - the notification a maintainer receives has a low signal-to-noise ratio
-  - Git pros *can* use their judgement to rebase/squash to clean up the history *if it aids the understanding* of a larger change during review
+  - Git pros _can_ use their judgement to rebase/squash to clean up the history _if it aids the understanding_ of a larger change during review
 - Merge conflicts:
   - In general you should take care of resolving merge conflicts.
     - Use your judgement whether to `git merge main` or to `git rebase main`

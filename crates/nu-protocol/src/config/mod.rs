@@ -55,6 +55,7 @@ pub struct Config {
     pub completions: CompletionConfig,
     pub edit_mode: EditBindings,
     pub show_hints: bool,
+    pub inline_diagnostics: bool,
     pub history: HistoryConfig,
     pub keybindings: Vec<ParsedKeybinding>,
     pub menus: Vec<ParsedMenu>,
@@ -114,6 +115,7 @@ impl Default for Config {
             bracketed_paste: true,
             edit_mode: EditBindings::default(),
             show_hints: true,
+            inline_diagnostics: false,
 
             shell_integration: ShellIntegrationConfig::default(),
 
@@ -167,6 +169,7 @@ impl UpdateFromValue for Config {
                 "use_ansi_coloring" => self.use_ansi_coloring.update(val, path, errors),
                 "edit_mode" => self.edit_mode.update(val, path, errors),
                 "show_hints" => self.show_hints.update(val, path, errors),
+                "inline_diagnostics" => self.inline_diagnostics.update(val, path, errors),
                 "shell_integration" => self.shell_integration.update(val, path, errors),
                 "buffer_editor" => match val {
                     Value::Nothing { .. } | Value::String { .. } => {
