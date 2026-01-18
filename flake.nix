@@ -87,6 +87,8 @@
             inherit cargoArtifacts;
             doCheck = false;
 
+passthru.shellPath = "/bin/nu";
+
             meta = {
               description = "A new type of shell (with LSP diagnostics)";
               homepage = "https://www.nushell.sh/";
