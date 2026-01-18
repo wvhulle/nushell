@@ -56,7 +56,7 @@
       commonArgs = {
         inherit src;
         pname = "nushell";
-        version = "0.109.2-lsp";
+        version = "0.109.2";
 
         nativeBuildInputs = with pkgs; [
           pkg-config
