@@ -30,7 +30,7 @@ nu-utils = { path = "../nu-utils", version = "0.109.2" }
 nu-color-config = { path = "../nu-color-config", version = "0.109.2" }
 nu-experimental = { path = "../nu-experimental", version = "0.109.2" }
 nu-ansi-term = { workspace = true }
-reedline = { workspace = true, features = ["bashisms"] }
+reedline = { workspace = true, features = ["bashisms", "lsp_diagnostics"] }
 
 chrono = { default-features = false, features = ["std"], workspace = true }
 crossterm = { workspace = true }

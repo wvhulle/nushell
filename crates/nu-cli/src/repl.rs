@@ -38,7 +38,7 @@ use nu_utils::{
 use reedline::SqliteBackedHistory;
 use reedline::{
     CursorConfig, CwdAwareHinter, DefaultCompleter, EditCommand, Emacs, FileBackedHistory,
-    HistorySessionId, Reedline, Vi,
+    HistorySessionId, LspConfig, LspDiagnosticsProvider, Reedline, Vi,
 };
 use std::sync::atomic::Ordering;
 use std::{
@@ -431,6 +431,16 @@ fn loop_iteration(ctx: LoopContext) -> (bool, Stack, Reedline) {
     };
 
     perf!("reedline coloring/style_computer", start_time, use_color);
+
+    // Enable LSP diagnostics if REEDLINE_LS environment variable is set
+    if let Ok(server_bin) = std::env::var("REEDLINE_LS") {
+        line_editor = line_editor.with_lsp_diagnostics(LspDiagnosticsProvider::new(LspConfig {
+            server_bin,
+            server_args: vec!["--lsp".into()],
+            timeout_ms: 100,
+            uri_scheme: "repl".to_string(),
+        }));
+    }
 
     start_time = std::time::Instant::now();
     trace!("adding menus");

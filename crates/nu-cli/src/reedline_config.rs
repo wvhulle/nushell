@@ -643,11 +643,12 @@ pub(crate) fn add_description_menu(
 }
 
 fn add_menu_keybindings(keybindings: &mut Keybindings) {
-    // Completer menu keybindings
+    // Completer menu keybindings (with diagnostic fixes if available)
     keybindings.add_binding(
         KeyModifiers::NONE,
         KeyCode::Tab,
         ReedlineEvent::UntilFound(vec![
+            ReedlineEvent::OpenDiagnosticFixMenu,
             ReedlineEvent::Menu("completion_menu".to_string()),
             ReedlineEvent::MenuNext,
             ReedlineEvent::Edit(vec![EditCommand::Complete]),
