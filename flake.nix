@@ -41,7 +41,7 @@
 
         # Update Cargo.toml to use local reedline path
         substituteInPlace $out/Cargo.toml \
-          --replace 'reedline = { path = "../reedline" }' 'reedline = { path = "./reedline" }'
+          --replace-fail 'reedline = { path = "../reedline" }' 'reedline = { path = "./reedline" }'
       '';
 
       # Filter for .nu and .md files (used by include_str!)
