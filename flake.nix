@@ -7,7 +7,7 @@
 
     # Local reedline with LSP diagnostics feature
     reedline = {
-      url = "git+file:///home/wvhulle/Code/reedline?ref=inline-hints";
+      url = "git+https://github.com/wvhulle/reedline?ref=inline-hints";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.crane.follows = "crane";
     };
@@ -46,14 +46,11 @@
 
       # Filter for .nu and .md files (used by include_str!)
       extraFilesFilter =
-        path: _type:
-        (builtins.match ".*\\.nu$" path != null) || (builtins.match ".*\\.md$" path != null);
+        path: _type: (builtins.match ".*\\.nu$" path != null) || (builtins.match ".*\\.md$" path != null);
 
       src = pkgs.lib.cleanSourceWith {
         src = combinedSrc;
-        filter =
-          path: type:
-          (extraFilesFilter path type) || (craneLib.filterCargoSources path type);
+        filter = path: type: (extraFilesFilter path type) || (craneLib.filterCargoSources path type);
       };
 
       commonArgs = {

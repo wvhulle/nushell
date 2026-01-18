@@ -643,16 +643,22 @@ pub(crate) fn add_description_menu(
 }
 
 fn add_menu_keybindings(keybindings: &mut Keybindings) {
-    // Completer menu keybindings (with diagnostic fixes if available)
+    // Completer menu keybindings
     keybindings.add_binding(
         KeyModifiers::NONE,
         KeyCode::Tab,
         ReedlineEvent::UntilFound(vec![
-            ReedlineEvent::OpenDiagnosticFixMenu,
             ReedlineEvent::Menu("completion_menu".to_string()),
             ReedlineEvent::MenuNext,
             ReedlineEvent::Edit(vec![EditCommand::Complete]),
         ]),
+    );
+
+    // Diagnostic fix menu (Ctrl+. - IDE standard for Quick Fix)
+    keybindings.add_binding(
+        KeyModifiers::CONTROL,
+        KeyCode::Char('.'),
+        ReedlineEvent::OpenDiagnosticFixMenu,
     );
 
     keybindings.add_binding(
