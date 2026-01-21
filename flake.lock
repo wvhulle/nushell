@@ -2,11 +2,11 @@
   "nodes": {
     "crane": {
       "locked": {
-        "lastModified": 1768700043,
-        "narHash": "sha256-rfs2aP+wdueJZ6uABaj0e0PavQyzkRJuJX30HNcBPTg=",
+        "lastModified": 1768873933,
+        "narHash": "sha256-CfyzdaeLNGkyAHp3kT5vjvXhA1pVVK7nyDziYxCPsNk=",
         "owner": "ipetkov",
         "repo": "crane",
-        "rev": "935de8bd6838d940988bb065be2a2034259327b9",
+        "rev": "0bda7e7d005ccb5522a76d11ccfbf562b71953ca",
         "type": "github"
       },
       "original": {
@@ -17,11 +17,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1768661221,
-        "narHash": "sha256-MJwOjrIISfOpdI9x4C+5WFQXvHtOuj5mqLZ4TMEtk1M=",
+        "lastModified": 1768875095,
+        "narHash": "sha256-dYP3DjiL7oIiiq3H65tGIXXIT1Waiadmv93JS0sS+8A=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "3327b113f2ef698d380df83fbccefad7e83d7769",
+        "rev": "ed142ab1b3a092c4d149245d0c4126a5d7ea00b0",
         "type": "github"
       },
       "original": {
@@ -41,11 +41,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1768758756,
-        "narHash": "sha256-GEED8F+MpS5X9R0sVqh50SB57kdH5Mmy7OTgRjBJwgc=",
+        "lastModified": 1768826035,
+        "narHash": "sha256-njsLwsvwD6PWpXw+YXPdvcGa/VQEhDY5HujIMLXjw10=",
         "ref": "inline-hints",
-        "rev": "2e333d169ff5e99a54ff18cdc03b2ea9e78e41fb",
-        "revCount": 659,
+        "rev": "36cdd03c28194c120efdcf037678ae89ff511f57",
+        "revCount": 661,
         "type": "git",
         "url": "https://github.com/wvhulle/reedline"
       },
