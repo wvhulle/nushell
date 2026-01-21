@@ -306,6 +306,11 @@ plugin = [
   "nu-protocol/plugin",
 ]
 
+
+diagnostics =[
+  "reedline/lsp_diagnostics"
+]
+
 mcp = [
   "dep:nu-mcp",
   "nu-mcp/mcp",
@@ -316,6 +321,7 @@ native-tls = ["nu-command/native-tls"]
 rustls-tls = ["nu-command/rustls-tls"]
 
 default = [
+  "diagnostics",
   "plugin",
   "trash-support",
   "sqlite",

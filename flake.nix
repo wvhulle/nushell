@@ -87,7 +87,7 @@
             inherit cargoArtifacts;
             doCheck = false;
 
-passthru.shellPath = "/bin/nu";
+            passthru.shellPath = "/bin/nu";
 
             meta = {
               description = "A new type of shell (with LSP diagnostics)";
@@ -99,10 +99,10 @@ passthru.shellPath = "/bin/nu";
       };
 
       # Dev shell for working on nushell
-      devShells.${system}.default = pkgs.mkShell {
+      devShells.${system}.default = craneLib.devShell {
         packages = with pkgs; [
-          rustc
-          cargo
+          # rustc
+          # cargo
           pkg-config
           python3
           zstd

@@ -1,18 +1,13 @@
-use crate::prompt_update::{
-    POST_EXECUTION_MARKER_PREFIX, POST_EXECUTION_MARKER_SUFFIX, PRE_EXECUTION_MARKER,
-    RESET_APPLICATION_MODE, VSCODE_COMMANDLINE_MARKER_PREFIX, VSCODE_COMMANDLINE_MARKER_SUFFIX,
-    VSCODE_CWD_PROPERTY_MARKER_PREFIX, VSCODE_CWD_PROPERTY_MARKER_SUFFIX,
-    VSCODE_POST_EXECUTION_MARKER_PREFIX, VSCODE_POST_EXECUTION_MARKER_SUFFIX,
-    VSCODE_PRE_EXECUTION_MARKER,
+use std::{
+    collections::HashMap,
+    env::temp_dir,
+    io::{self, IsTerminal, Write},
+    panic::{AssertUnwindSafe, catch_unwind},
+    path::{Path, PathBuf},
+    sync::{Arc, atomic::Ordering},
+    time::{Duration, Instant},
 };
-use crate::{
-    NuHighlighter, NuValidator, NushellPrompt,
-    completions::NuCompleter,
-    nu_highlight::NoOpHighlighter,
-    prompt_update,
-    reedline_config::{KeybindingsMode, add_menus, create_keybindings},
-    util::eval_source,
-};
+
 use crossterm::cursor::SetCursorStyle;
 use log::{error, trace, warn};
 use miette::{ErrReport, IntoDiagnostic, Result};
@@ -22,13 +17,12 @@ use nu_color_config::StyleComputer;
 use nu_engine::env_to_strings;
 use nu_engine::exit::cleanup_exit;
 use nu_parser::{lex, parse, trim_quotes_str};
-use nu_protocol::shell_error::io::IoError;
-use nu_protocol::{BannerKind, shell_error};
 use nu_protocol::{
-    HistoryConfig, HistoryFileFormat, PipelineData, ShellError, Span, Spanned, Value,
+    BannerKind, HistoryConfig, HistoryFileFormat, PipelineData, ShellError, Span, Spanned, Value,
     config::NuCursorShape,
     engine::{EngineState, Stack, StateWorkingSet},
-    report_shell_error,
+    report_shell_error, shell_error,
+    shell_error::io::IoError,
 };
 use nu_utils::{
     filesystem::{PermissionResult, have_permission},
@@ -40,17 +34,23 @@ use reedline::{
     CursorConfig, CwdAwareHinter, DefaultCompleter, EditCommand, Emacs, FileBackedHistory,
     HistorySessionId, LspConfig, LspDiagnosticsProvider, Reedline, Vi,
 };
-use std::sync::atomic::Ordering;
-use std::{
-    collections::HashMap,
-    env::temp_dir,
-    io::{self, IsTerminal, Write},
-    panic::{AssertUnwindSafe, catch_unwind},
-    path::{Path, PathBuf},
-    sync::Arc,
-    time::{Duration, Instant},
-};
 use sysinfo::System;
+
+use crate::{
+    NuHighlighter, NuValidator, NushellPrompt,
+    completions::NuCompleter,
+    nu_highlight::NoOpHighlighter,
+    prompt_update,
+    prompt_update::{
+        POST_EXECUTION_MARKER_PREFIX, POST_EXECUTION_MARKER_SUFFIX, PRE_EXECUTION_MARKER,
+        RESET_APPLICATION_MODE, VSCODE_COMMANDLINE_MARKER_PREFIX, VSCODE_COMMANDLINE_MARKER_SUFFIX,
+        VSCODE_CWD_PROPERTY_MARKER_PREFIX, VSCODE_CWD_PROPERTY_MARKER_SUFFIX,
+        VSCODE_POST_EXECUTION_MARKER_PREFIX, VSCODE_POST_EXECUTION_MARKER_SUFFIX,
+        VSCODE_PRE_EXECUTION_MARKER,
+    },
+    reedline_config::{KeybindingsMode, add_menus, create_keybindings},
+    util::eval_source,
+};
 
 /// The main REPL loop, including spinning up the prompt itself.
 pub fn evaluate_repl(
@@ -435,8 +435,7 @@ fn loop_iteration(ctx: LoopContext) -> (bool, Stack, Reedline) {
     // Enable LSP diagnostics if REEDLINE_LS environment variable is set
     if let Ok(server_bin) = std::env::var("REEDLINE_LS") {
         line_editor = line_editor.with_lsp_diagnostics(LspDiagnosticsProvider::new(LspConfig {
-            server_bin,
-            server_args: vec!["--lsp".into()],
+            command: server_bin,
             timeout_ms: 100,
             uri_scheme: "repl".to_string(),
         }));
@@ -763,7 +762,6 @@ fn loop_iteration(ctx: LoopContext) -> (bool, Stack, Reedline) {
 
 ///
 /// Put in history metadata not related to the result of running the command
-///
 fn prepare_history_metadata(
     s: &str,
     hostname: Option<&str>,
@@ -790,7 +788,6 @@ fn prepare_history_metadata(
 
 ///
 /// Fills in history item metadata based on the execution result (notably duration and exit code)
-///
 fn fill_in_result_related_history_metadata(
     s: &str,
     engine_state: &EngineState,
@@ -835,7 +832,6 @@ enum ReplOperation {
 /// "auto-cd" (writing a relative path directly instead of `cd path`)
 ///
 /// Returns the ReplOperation we believe the user wants to do
-///
 fn parse_operation(
     s: String,
     engine_state: &EngineState,
@@ -868,7 +864,6 @@ fn parse_operation(
 
 ///
 /// Execute an "auto-cd" operation, changing the current working directory.
-///
 fn do_auto_cd(
     path: PathBuf,
     cwd: String,
@@ -950,7 +945,6 @@ fn do_auto_cd(
 ///
 /// Run a command as received from reedline. This is where we are actually
 /// running a thing!
-///
 fn do_run_cmd(
     s: &str,
     stack: &mut Stack,
@@ -1014,7 +1008,6 @@ fn do_run_cmd(
 /// Output some things and set environment variables so shells with the right integration
 /// can have more information about what is going on (both on startup and after we have
 /// run a command)
-///
 fn run_shell_integration_osc2(
     command_name: Option<&str>,
     engine_state: &EngineState,
@@ -1156,7 +1149,6 @@ fn run_shell_integration_reset_application_mode() {
 
 ///
 /// Clear the screen and output anything remaining in the EngineState buffer.
-///
 fn flush_engine_state_repl_buffer(
     engine_state: &mut EngineState,
     mut line_editor: Reedline,
@@ -1181,7 +1173,6 @@ fn flush_engine_state_repl_buffer(
 
 ///
 /// Setup history management for Reedline
-///
 fn setup_history(
     engine_state: &mut EngineState,
     line_editor: Reedline,
@@ -1208,7 +1199,6 @@ fn setup_history(
 
 ///
 /// Setup Reedline keybindingds based on the provided config
-///
 fn setup_keybindings(engine_state: &EngineState, line_editor: Reedline) -> Reedline {
     match create_keybindings(engine_state.get_config()) {
         Ok(keybindings) => match keybindings {
@@ -1233,7 +1223,6 @@ fn setup_keybindings(engine_state: &EngineState, line_editor: Reedline) -> Reedl
 
 ///
 /// Make sure that the terminal supports the kitty protocol if the config is asking for it
-///
 fn kitty_protocol_healthcheck(engine_state: &EngineState) {
     if engine_state.get_config().use_kitty_protocol && !reedline::kitty_protocol_available() {
         warn!("Terminal doesn't support use_kitty_protocol config");
@@ -1496,10 +1485,11 @@ fn are_session_ids_in_sync() {
 
 #[cfg(test)]
 mod test_auto_cd {
-    use super::{ReplOperation, do_auto_cd, escape_special_vscode_bytes, parse_operation};
     use nu_path::AbsolutePath;
     use nu_protocol::engine::{EngineState, Stack};
     use tempfile::tempdir;
+
+    use super::{ReplOperation, do_auto_cd, escape_special_vscode_bytes, parse_operation};
 
     /// Create a symlink. Works on both Unix and Windows.
     #[cfg(any(unix, windows))]
