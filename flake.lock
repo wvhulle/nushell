@@ -41,11 +41,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1769160537,
-        "narHash": "sha256-9RBgO+WZrXXNjDnGZ7FIgSmaan6ADVbUhyfBCcDBwYg=",
+        "lastModified": 1769175262,
+        "narHash": "sha256-tNWU+3yn0OoingpMSSiMHLr/fh+5P1hArh5OjeRhRHU=",
         "ref": "inline-hints",
-        "rev": "9397d6add2609eb36ac78f8de34c37c1d4c052be",
-        "revCount": 662,
+        "rev": "135003ef493bdc29ab3e3ad0b65319183332f2bd",
+        "revCount": 664,
         "type": "git",
         "url": "https://github.com/wvhulle/reedline"
       },
