@@ -81,6 +81,8 @@ pub enum MenuLayout {
     List,
     Ide,
     Description,
+    #[strum(serialize = "diagnostic_fix")]
+    DiagnosticFix,
 }
 
 /// How much of the line a menu hands to its completer, spelled in any case.
@@ -105,7 +107,7 @@ const VALID_MODIFIERS: &str = "'control', 'shift', 'alt', 'super', 'hyper', 'met
 const VALID_KEYCODES: &str = "'backspace', 'enter', 'space', 'down', 'up', 'left', 'right', 'home', 'end', 'pageup', 'pagedown', 'tab', 'backtab', 'delete', 'insert', 'null', 'esc', 'f1' to 'f35', 'char_<char>', or 'char_u<hex code>'";
 /// The edit modes a keybinding can name, as the error says.
 pub const VALID_KEYBINDING_MODES: &str = "'emacs', 'vi_insert', 'vi_normal', 'vi_visual', 'helix_insert', 'helix_normal', or 'helix_select'";
-const VALID_LAYOUTS: &str = "'columnar', 'list', 'ide', or 'description'";
+const VALID_LAYOUTS: &str = "'columnar', 'list', 'ide', 'description', or 'diagnostic_fix'";
 const VALID_INPUT_MODES: &str = "'diff', 'cursor_prefix', or 'full_buffer'";
 const VALID_OUTPUT_MODES: &str = "'suggested_span', 'full_buffer', or 'extend_to_end'";
 
@@ -253,7 +255,7 @@ impl ParsedKeybinding {
 
 impl ParsedMenu {
     /// The layout this menu is shown with. Its `type` must be a record with a
-    /// `layout` that names one of the four layouts.
+    /// `layout` that names one of the five layouts.
     pub fn layout(&self, config: &Config) -> Result<MenuLayout, ShellError> {
         let span = self.r#type.span();
         let Value::Record { val, .. } = &self.r#type else {
@@ -540,12 +542,13 @@ mod tests {
     }
 
     #[test]
-    fn a_menu_layout_is_one_of_four_lowercase_names() -> Result<(), ShellError> {
+    fn a_menu_layout_is_one_of_five_lowercase_names() -> Result<(), ShellError> {
         for (name, expected) in [
             ("columnar", MenuLayout::Columnar),
             ("list", MenuLayout::List),
             ("ide", MenuLayout::Ide),
             ("description", MenuLayout::Description),
+            ("diagnostic_fix", MenuLayout::DiagnosticFix),
         ] {
             assert_eq!(layout_of(name)?, expected, "{name}");
         }

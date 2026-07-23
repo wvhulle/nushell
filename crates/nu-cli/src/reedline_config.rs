@@ -64,10 +64,11 @@ fn add_menu(
         MenuLayout::Description => {
             add_description_menu(line_editor, menu, engine_state, stack, config)
         }
+        MenuLayout::DiagnosticFix => Ok(line_editor),
     }
 }
 
-fn get_style(record: &Record, name: &'static str, span: Span) -> Option<Style> {
+pub(crate) fn get_style(record: &Record, name: &'static str, span: Span) -> Option<Style> {
     extract_value(name, record, span)
         .ok()
         .map(|text| match text {
@@ -2648,5 +2649,17 @@ mod test {
                 assert_eq!(for_keybinding.is_ok(), shown.is_some(), "{name}");
             }
         }
+    }
+
+    #[test]
+    fn default_config_binds_the_diagnostic_fix_menu() {
+        let Ok(KeybindingsMode::Emacs(keybindings)) = create_keybindings(&Config::default()) else {
+            panic!("the default edit mode should be emacs");
+        };
+
+        assert_eq!(
+            keybindings.find_binding(KeyModifiers::CONTROL, KeyCode::Char('.')),
+            Some(ReedlineEvent::Menu("diagnostic_fix_menu".to_string()))
+        );
     }
 }
