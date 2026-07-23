@@ -4772,6 +4772,7 @@ dependencies = [
  "nu-color-config",
  "nu-command",
  "nu-config",
+ "nu-diagnostics",
  "nu-engine",
  "nu-experimental",
  "nu-glob",
@@ -5061,6 +5062,24 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 3.0.4",
+]
+
+[[package]]
+name = "nu-diagnostics"
+version = "0.116.2"
+dependencies = [
+ "crossbeam-channel",
+ "crossterm",
+ "log",
+ "lsp-server",
+ "lsp-types",
+ "nu-ansi-term",
+ "nu-utils",
+ "reedline",
+ "serde",
+ "serde_json",
+ "unicode-width 0.2.2",
+ "url",
 ]
 
 [[package]]
@@ -7856,7 +7875,7 @@ dependencies = [
 [[package]]
 name = "reedline"
 version = "0.52.1"
-source = "git+https://github.com/nushell/reedline?branch=main#4a3dad313c1951a77c13b6fd9b64ff39d1132c86"
+source = "git+https://github.com/wvhulle/reedline.git?branch=status-line-rebase#25d698e6ed4287313894aeab01788f841a50ea5e"
 dependencies = [
  "arboard",
  "crossterm",
