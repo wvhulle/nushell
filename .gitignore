@@ -71,3 +71,6 @@ tarpaulin-report.html
 .splashboard.toml
 
 .jarvis/
+
+crates/nu-diagnostics/demos/*.webp
+crates/nu-diagnostics/demos/*.mp4
