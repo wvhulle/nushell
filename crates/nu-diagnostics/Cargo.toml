@@ -1,0 +1,30 @@
+[package]
+authors.workspace = true
+description = "Inline LSP diagnostics and fixes for the Nushell REPL"
+repository = "https://github.com/nushell/nushell/tree/main/crates/nu-diagnostics"
+name = "nu-diagnostics"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+readme = "README.md"
+
+[lib]
+bench = false
+
+[dependencies]
+crossbeam-channel = { workspace = true }
+crossterm = { workspace = true }
+log = { workspace = true }
+lsp-server = { workspace = true }
+lsp-types = { workspace = true }
+nu-ansi-term = { workspace = true }
+nu-utils = { workspace = true }
+reedline = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+unicode-width = { workspace = true }
+url = { workspace = true }
+
+[lints]
+workspace = true
