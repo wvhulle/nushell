@@ -65,6 +65,10 @@ pub fn default_color_config() -> HashMap<String, Value> {
         ("semver-range", str("cyan_bold")),
         ("block", str("default")),
         ("hints", str("dark_gray")),
+        ("diagnostic_error", str("red")),
+        ("diagnostic_warning", str("yellow")),
+        ("diagnostic_info", str("blue")),
+        ("diagnostic_hint", str("dark_gray")),
         (
             "search_result",
             rec(record! {
@@ -196,6 +200,21 @@ pub fn default_menus() -> Vec<ParsedMenu> {
             r#type: rec(record! {
                 "layout" => str("list"),
                 "page_size" => int(10),
+            }),
+            source: None,
+        },
+        ParsedMenu {
+            name: str("diagnostic_fix_menu"),
+            marker: str("| "),
+            only_buffer_difference: Some(bool(true)),
+            input_mode: None,
+            output_mode: None,
+            style: rec(record! {
+                "text" => str("default_italic"),
+                "selected_text" => str("green_italic"),
+            }),
+            r#type: rec(record! {
+                "layout" => str("diagnostic_fix"),
             }),
             source: None,
         },
@@ -396,6 +415,12 @@ pub fn default_keybindings() -> Vec<ParsedKeybinding> {
             until(vec![send("menupageprevious"), edit("undo")]),
         ),
         keybinding("help_menu", "none", "f1", send_menu("help_menu")),
+        keybinding(
+            "diagnostic_fix_menu",
+            "control",
+            "char_.",
+            send_menu("diagnostic_fix_menu"),
+        ),
         keybinding("search_history", "control", "char_q", send("searchhistory")),
     ]
 }

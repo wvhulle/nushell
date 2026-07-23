@@ -63,8 +63,9 @@ fn add_menu(
             "list" => add_list_menu(line_editor, menu, engine_state, stack, config),
             "ide" => add_ide_menu(line_editor, menu, engine_state, stack, config),
             "description" => add_description_menu(line_editor, menu, engine_state, stack, config),
+            "diagnostic_fix" => Ok(line_editor),
             str => Err(ShellError::InvalidValue {
-                valid: "'columnar', 'list', 'ide', or 'description'".into(),
+                valid: "'columnar', 'list', 'ide', 'description', or 'diagnostic_fix'".into(),
                 actual: format!("'{str}'"),
                 span,
             }),
@@ -78,7 +79,7 @@ fn add_menu(
     }
 }
 
-fn get_style(record: &Record, name: &'static str, span: Span) -> Option<Style> {
+pub(crate) fn get_style(record: &Record, name: &'static str, span: Span) -> Option<Style> {
     extract_value(name, record, span)
         .ok()
         .map(|text| match text {
@@ -2618,6 +2619,18 @@ mod test {
                 Some(ReedlineEvent::Edit(_))
             ),
             "the visual table should keep reedline's extending arrow defaults"
+        );
+    }
+
+    #[test]
+    fn default_config_binds_the_diagnostic_fix_menu() {
+        let Ok(KeybindingsMode::Emacs(keybindings)) = create_keybindings(&Config::default()) else {
+            panic!("the default edit mode should be emacs");
+        };
+
+        assert_eq!(
+            keybindings.find_binding(KeyModifiers::CONTROL, KeyCode::Char('.')),
+            Some(ReedlineEvent::Menu("diagnostic_fix_menu".to_string()))
         );
     }
 }

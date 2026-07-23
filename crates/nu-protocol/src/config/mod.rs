@@ -14,6 +14,7 @@ pub use completions::{
 };
 pub use datetime_format::DatetimeFormatConfig;
 pub use defaults::default_color_config;
+pub use diagnostics::{DiagnosticServerConfig, DiagnosticsConfig};
 pub use display_errors::DisplayErrors;
 pub use duration_max_unit::DurationMaxUnit;
 pub use filesize::FilesizeConfig;
@@ -34,6 +35,7 @@ mod clip;
 mod completions;
 mod datetime_format;
 mod defaults;
+mod diagnostics;
 mod display_errors;
 mod duration_max_unit;
 mod error;
@@ -66,6 +68,7 @@ pub struct Config {
     pub edit_mode: EditBindings,
     pub show_hints: bool,
     pub hinter: HinterConfig,
+    pub diagnostics: DiagnosticsConfig,
     pub history: HistoryConfig,
     pub keybindings: Vec<ParsedKeybinding>,
     pub abbreviations: HashMap<String, String>,
@@ -142,6 +145,7 @@ impl Default for Config {
             edit_mode: EditBindings::default(),
             show_hints: true,
             hinter: HinterConfig::default(),
+            diagnostics: DiagnosticsConfig::default(),
 
             shell_integration: ShellIntegrationConfig::default(),
 
@@ -209,6 +213,7 @@ impl UpdateFromValue for Config {
                 "edit_mode" => self.edit_mode.update(val, current_path, errors),
                 "show_hints" => self.show_hints.update(val, current_path, errors),
                 "hinter" => self.hinter.update(val, current_path, errors),
+                "diagnostics" => self.diagnostics.update(val, current_path, errors),
                 "shell_integration" => self.shell_integration.update(val, current_path, errors),
                 "show_banner" => self.show_banner.update(val, current_path, errors),
                 "display_errors" => self.display_errors.update(val, current_path, errors),

@@ -216,6 +216,25 @@ $env.config.cursor_shape.helix_insert = "inherit"
 # Completions Behavior
 # --------------------
 
+# diagnostics.servers (list): Language servers whose diagnostics and fixes are shown
+# under the input while you type. Requires the `inline-diagnostics` experimental option.
+# Each entry is a record with:
+#   command (list<string>): The server program and its arguments. Required.
+#   language_id (string): Sets the file extension the input is presented with.
+#     Default: "nushell".
+#   uri_scheme (string): "file" presents the input as `./.reedline-repl.<ext>`, for
+#     servers that resolve project config by path. Any other value is used as the scheme of
+#     a virtual document. Default: "file".
+# Servers keep running across prompts and restart when this list or the current
+# directory changes. Open the fix menu with `Ctrl+.` (keybinding `diagnostic_fix_menu`).
+#
+# Default: [] (no servers are started)
+#
+# Example:
+# $env.config.diagnostics.servers = [
+#     { command: [nu-lint --lsp], language_id: nushell, uri_scheme: repl }
+# ]
+
 # show_hints (bool): Enable or disable inline hints for completions and history.
 # true: Show hints as you type.
 # false: Don't show hints.
@@ -698,7 +717,7 @@ $env.config.hooks.command_not_found = null
 # See https://www.nushell.sh/book/line_editor.html#keybindings for details.
 #
 # Default: Nushell menu keybindings (Tab completion, Ctrl-r history menu, F1 help,
-# etc.). Inspect with `$env.config.keybindings`. Reedline's base emacs/vi maps are
+# Ctrl-. diagnostic fix menu, etc.). Inspect with `$env.config.keybindings`. Reedline's base emacs/vi maps are
 # still applied underneath and are listed by `keybindings default`.
 #
 # Assigning this list merges into the current bindings rather than replacing
@@ -799,7 +818,7 @@ $env.config.abbreviations = {}
 # It returns what a completer returns, so one source can serve as either; the `options` of a
 # {completions, options} record name engine behaviour a menu has no say in and are ignored.
 #
-# Default: completion_menu, ide_completion_menu, history_menu, help_menu.
+# Default: completion_menu, ide_completion_menu, history_menu, diagnostic_fix_menu, help_menu.
 # Inspect with `$env.config.menus`. Assigning this list merges into the
 # defaults by `name` rather than replacing them, so `=` never clears them.
 
@@ -1230,6 +1249,14 @@ $env.config.color_config.block = "default"
 # -----------------
 # UI Element Colors
 # -----------------
+
+# color_config.diagnostic_error, diagnostic_warning, diagnostic_info, diagnostic_hint:
+# Styles for language server messages under the input. Their foreground colors the
+# matching underlines. See `diagnostics` above.
+$env.config.color_config.diagnostic_error = "red"
+$env.config.color_config.diagnostic_warning = "yellow"
+$env.config.color_config.diagnostic_info = "blue"
+$env.config.color_config.diagnostic_hint = "dark_gray"
 
 # color_config.hints: Style for inline completion hints.
 # Default: dark_gray
