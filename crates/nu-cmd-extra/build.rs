@@ -12,6 +12,9 @@ use std::{
 static OUT_DIR: LazyLock<PathBuf> =
     LazyLock::new(|| PathBuf::from(env::var_os("OUT_DIR").expect("set by cargo")));
 
+static MANIFEST_DIR: LazyLock<PathBuf> =
+    LazyLock::new(|| PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").expect("set by cargo")));
+
 fn main() {
     println!("cargo::rerun-if-changed=build.rs");
 
@@ -31,7 +34,8 @@ fn prepare_html_themes() {
     // https://github.com/mbadolato/iTerm2-Color-Schemes/tree/master/windowsterminal
     println!("cargo::rerun-if-changed=assets/228_themes.json");
 
-    let themes = File::open("assets/228_themes.json").unwrap();
+    let themes_path = MANIFEST_DIR.join("assets/228_themes.json");
+    let themes = File::open(&themes_path).unwrap();
     let themes = BufReader::new(themes);
     let themes: HtmlThemes = serde_json::from_reader(themes).unwrap();
 

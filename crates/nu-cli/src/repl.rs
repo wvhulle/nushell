@@ -39,8 +39,8 @@ use nu_utils::{
 use reedline::SqliteBackedHistory;
 use reedline::{
     CursorConfig, CwdAwareHinter, DefaultCompleter, EditCommand, Emacs, FileBackedHistory,
-    HistorySessionId, MouseClickMode, Osc133ClickEventsMarkers, Osc633Markers, Reedline,
-    SemanticPromptMarkers, Vi,
+    HistorySessionId, LspConfig, LspDiagnosticsProvider, MouseClickMode, Osc133ClickEventsMarkers,
+    Osc633Markers, Reedline, SemanticPromptMarkers, Vi,
 };
 use std::sync::atomic::Ordering;
 use std::{
@@ -660,6 +660,45 @@ fn loop_iteration(ctx: LoopContext) -> (bool, Stack, Reedline) {
     };
 
     perf!("reedline coloring/style_computer", start_time, use_color);
+
+    // Enable LSP diagnostics from $env.REEDLINE_LSP_SERVERS (list of {language_id, command} records)
+    // or fall back to the REEDLINE_LS OS env var for backwards compatibility.
+    // Clear existing providers first to prevent accumulation across REPL iterations.
+    line_editor.clear_lsp_providers();
+    if let Some(servers_val) = engine_state.get_env_var("REEDLINE_LSP_SERVERS") {
+        if let Value::List { vals, .. } = servers_val {
+            for record_val in vals {
+                if let Value::Record { val: record, .. } = record_val {
+                    let language_id = record
+                        .get("language_id")
+                        .and_then(|v| v.as_str().ok())
+                        .unwrap_or("nushell");
+                    let uri_scheme = record
+                        .get("uri_scheme")
+                        .and_then(|v| v.as_str().ok())
+                        .unwrap_or("file");
+                    let command = record.get("command").and_then(|v| v.as_str().ok());
+                    if let Some(command) = command {
+                        line_editor =
+                            line_editor.with_lsp_diagnostics(LspDiagnosticsProvider::new(
+                                LspConfig {
+                                    command: command.to_string(),
+                                    uri_scheme: uri_scheme.to_string(),
+                                    language_id: language_id.to_string(),
+                                },
+                            ));
+                    }
+                }
+            }
+        }
+    } else if let Ok(server_bin) = std::env::var("REEDLINE_LS") {
+        line_editor = line_editor.with_lsp_diagnostics(LspDiagnosticsProvider::new(LspConfig {
+            command: server_bin,
+            uri_scheme: std::env::var("REEDLINE_LS_SCHEME").unwrap_or_else(|_| "file".to_string()),
+            language_id: std::env::var("REEDLINE_LS_LANG")
+                .unwrap_or_else(|_| "nushell".to_string()),
+        }));
+    }
 
     start_time = Instant::now();
     trace!("adding menus");

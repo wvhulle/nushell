@@ -754,6 +754,13 @@ fn add_menu_keybindings(keybindings: &mut Keybindings) {
         ]),
     );
 
+    // Diagnostic fix menu (Ctrl+. - IDE standard for Quick Fix)
+    keybindings.add_binding(
+        KeyModifiers::CONTROL,
+        KeyCode::Char('.'),
+        ReedlineEvent::OpenDiagnosticFixMenu,
+    );
+
     keybindings.add_binding(
         KeyModifiers::CONTROL,
         KeyCode::Char(' '),
@@ -1157,6 +1164,7 @@ fn event_from_record(
             ReedlineEvent::ExecuteHostCommand(cmd.to_expanded_string("", config))
         }
         Ok(RED::OpenEditor) => ReedlineEvent::OpenEditor,
+        Ok(RED::OpenDiagnosticFixMenu) => ReedlineEvent::OpenDiagnosticFixMenu,
         Ok(RED::ViChangeMode) => {
             let mode = extract_value("mode", record, span)?;
             ReedlineEvent::ViChangeMode(mode.as_str()?.to_owned())
@@ -1222,6 +1230,7 @@ pub(crate) fn display_reedline_event(event: ReedlineEventDiscriminants) -> Optio
         RED::MenuPagePrevious => "MenuPagePrevious",
         RED::ExecuteHostCommand => "ExecuteHostCommand cmd: <string>",
         RED::OpenEditor => "OpenEditor",
+        RED::OpenDiagnosticFixMenu => "OpenDiagnosticFixMenu",
         RED::ViChangeMode => "ViChangeMode mode: <string>",
         // Non-sensical for user configuration
         RED::Mouse | RED::Resize => return None,
