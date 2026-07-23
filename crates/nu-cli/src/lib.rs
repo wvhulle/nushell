@@ -7,6 +7,8 @@ mod config_files;
 mod eval_cmds;
 mod eval_file;
 mod hints;
+#[cfg(feature = "diagnostics")]
+mod lsp_diagnostics_wiring;
 mod menus;
 mod prompt;
 mod prompt_update;

@@ -41,6 +41,7 @@ nu-color-config.workspace = true
 nu-experimental.workspace = true
 nu-ansi-term.workspace = true
 reedline = { workspace = true, features = ["bashisms"] }
+nu-diagnostics = { workspace = true, optional = true }
 
 chrono = { default-features = false, features = ["std"], workspace = true }
 crossterm = { workspace = true }
@@ -61,6 +62,7 @@ uuid = { workspace = true, features = ["v4"] }
 which = { workspace = true }
 
 [features]
+diagnostics = ["dep:nu-diagnostics"]
 plugin = ["nu-plugin-engine"]
 system-clipboard = ["reedline/system_clipboard"]
 sqlite = ["reedline/sqlite", "nu-protocol/sqlite", "nu-command/sqlite"]

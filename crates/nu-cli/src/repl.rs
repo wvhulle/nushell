@@ -1,3 +1,7 @@
+#[cfg(feature = "diagnostics")]
+use crate::lsp_diagnostics_wiring::{
+    LspDiagnosticsState, attach_lsp_diagnostics, detach_lsp_diagnostics,
+};
 use crate::prompt_update::{
     POST_EXECUTION_MARKER_PREFIX, POST_EXECUTION_MARKER_SUFFIX, PRE_EXECUTION_MARKER,
     RESET_APPLICATION_MODE, VSCODE_COMMANDLINE_MARKER_PREFIX, VSCODE_COMMANDLINE_MARKER_SUFFIX,
@@ -219,6 +223,8 @@ pub fn evaluate_repl(
     let mut previous_stack_arc = Arc::new(unique_stack);
     // Cache survives the completer being rebuilt each prompt.
     let completion_cache = NarrowingCache::default();
+    #[cfg(feature = "diagnostics")]
+    let mut lsp_diagnostics_state = LspDiagnosticsState::default();
     loop {
         // clone these values so that they can be moved by AssertUnwindSafe
         // If there is a panic within this iteration the last engine_state and stack
@@ -241,6 +247,8 @@ pub fn evaluate_repl(
                 hostname: hostname.as_deref(),
                 is_hostcommand: &mut is_hostcommand,
                 completion_cache: current_completion_cache,
+                #[cfg(feature = "diagnostics")]
+                lsp_diagnostics_state: &mut lsp_diagnostics_state,
                 first_prompt: first_prompt.take(),
             });
 
@@ -278,6 +286,10 @@ pub fn evaluate_repl(
             Err(_) => {
                 // line_editor is lost in the error case so reconstruct a new one
                 line_editor = get_line_editor(engine_state, use_color)?;
+                #[cfg(feature = "diagnostics")]
+                {
+                    lsp_diagnostics_state = LspDiagnosticsState::Inactive;
+                }
             }
         }
     }
@@ -358,6 +370,8 @@ struct LoopContext<'a> {
     is_hostcommand: &'a mut bool,
     /// Completion cache carried across prompts (survives the per-prompt completer rebuild).
     completion_cache: NarrowingCache,
+    #[cfg(feature = "diagnostics")]
+    lsp_diagnostics_state: &'a mut LspDiagnosticsState,
     /// Set for the iteration that draws the first prompt; `None` afterwards.
     first_prompt: Option<FirstPrompt>,
 }
@@ -646,6 +660,8 @@ fn loop_iteration(ctx: LoopContext) -> (bool, Stack, Reedline) {
         hostname,
         is_hostcommand,
         completion_cache,
+        #[cfg(feature = "diagnostics")]
+        lsp_diagnostics_state,
         first_prompt,
     } = ctx;
 
@@ -799,11 +815,25 @@ fn loop_iteration(ctx: LoopContext) -> (bool, Stack, Reedline) {
 
     start_time = Instant::now();
     trace!("adding menus");
-    line_editor =
-        add_menus(line_editor, engine_reference, &stack_arc, config).unwrap_or_else(|e| {
+    line_editor = add_menus(line_editor, engine_reference.clone(), &stack_arc, config)
+        .unwrap_or_else(|e| {
             report_shell_error(None, engine_state, &e);
+            #[cfg(feature = "diagnostics")]
+            {
+                *lsp_diagnostics_state = LspDiagnosticsState::Inactive;
+            }
             Reedline::create()
         });
+
+    #[cfg(feature = "diagnostics")]
+    {
+        line_editor = attach_lsp_diagnostics(
+            line_editor,
+            lsp_diagnostics_state,
+            &engine_reference,
+            &stack_arc,
+        );
+    }
 
     perf!("reedline adding menus", start_time, use_color);
 
@@ -876,6 +906,11 @@ fn loop_iteration(ctx: LoopContext) -> (bool, Stack, Reedline) {
 
     let interactive_prompt = build_interactive_prompt(engine_state, &mut line_editor);
     let input = line_editor.read_line(&interactive_prompt);
+
+    #[cfg(feature = "diagnostics")]
+    {
+        line_editor = detach_lsp_diagnostics(line_editor);
+    }
 
     // This lists all of the stack references that we have cleaned up
     line_editor = line_editor
