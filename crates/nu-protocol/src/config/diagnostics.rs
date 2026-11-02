@@ -122,10 +122,10 @@ mod tests {
 
     #[test]
     fn unset_fields_use_the_defaults() {
-        let server = Value::test_record(record! { "command" => command_of(&["nu-lint", "--lsp"]) });
+        let server = Value::test_record(record! { "command" => command_of(&["nu-lint", "lsp"]) });
         let (config, has_errors) = updated_config(with_servers(vec![server]));
         assert!(!has_errors);
-        assert_eq!(config.servers[0].command, ["nu-lint", "--lsp"]);
+        assert_eq!(config.servers[0].command, ["nu-lint", "lsp"]);
         assert_eq!(config.servers[0].language_id, "nushell");
         assert_eq!(config.servers[0].uri_scheme, "file");
     }
@@ -140,8 +140,7 @@ mod tests {
 
     #[test]
     fn a_command_string_is_rejected_in_favor_of_a_list() {
-        let server =
-            Value::test_record(record! { "command" => Value::test_string("nu-lint --lsp") });
+        let server = Value::test_record(record! { "command" => Value::test_string("nu-lint lsp") });
         let (config, has_errors) = updated_config(with_servers(vec![server]));
         assert!(has_errors);
         assert!(config.servers.is_empty());

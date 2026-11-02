@@ -2,7 +2,7 @@ mod shared;
 
 use shared::{run_diagnostics_repl, server_config};
 
-const DEFAULT_COMMAND: &str = "nu-lint --lsp";
+const DEFAULT_COMMAND: &str = "nu-lint lsp";
 const DEFAULT_LANGUAGE_ID: &str = "nushell";
 const DEFAULT_SCHEME: &str = "repl";
 

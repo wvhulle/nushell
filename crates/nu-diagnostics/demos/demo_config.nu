@@ -3,7 +3,7 @@ $env.config.history.max_size = 0
 $env.PROMPT_COMMAND = {|| "demo" }
 $env.PROMPT_COMMAND_RIGHT = {|| "" }
 $env.config.diagnostics.servers = [
-    { command: [nu-lint --lsp], language_id: nushell, uri_scheme: repl }
+    { command: [nu-lint lsp], language_id: nushell, uri_scheme: repl }
 ]
 $env.config.keybindings = [
     {
