@@ -9,7 +9,7 @@ def main [recordings: path, remote_url: string] {
         error make { msg: $"no recordings in ($recordings)" }
     }
     let staging_directory = mktemp --directory --suffix "-nu-diagnostics-recordings"
-    $recorded_scenes | each {|scene| cp --no-symlink $scene $staging_directory }
+    $recorded_scenes | each {|scene| cp $scene $staging_directory }
     cd $staging_directory
     ^chmod -R u+w .
     ^jj git init
