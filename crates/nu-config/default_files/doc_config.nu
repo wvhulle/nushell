@@ -232,7 +232,7 @@ $env.config.cursor_shape.helix_insert = "inherit"
 #
 # Example:
 # $env.config.diagnostics.servers = [
-#     { command: [nu-lint --lsp], language_id: nushell, uri_scheme: repl }
+#     { command: [nu-lint lsp], language_id: nushell, uri_scheme: repl }
 # ]
 
 # show_hints (bool): Enable or disable inline hints for completions and history.

@@ -24,7 +24,7 @@ List one or more language servers in `$env.config.diagnostics.servers`. Each rec
 
 ```nu
 $env.config.diagnostics.servers = [
-    { command: [nu-lint --lsp], language_id: nushell, uri_scheme: repl }
+    { command: [nu-lint lsp], language_id: nushell, uri_scheme: repl }
     # Add more servers here; diagnostics from all of them are shown inline.
 ]
 ```
@@ -44,7 +44,7 @@ Servers start once and keep running across prompts. They restart when this confi
 
 ```nu
 $env.config.diagnostics.servers = [
-    { command: [nu-lint --lsp], language_id: nushell, uri_scheme: repl }
+    { command: [nu-lint lsp], language_id: nushell, uri_scheme: repl }
 ]
 ```
 
@@ -124,7 +124,7 @@ $env.config.keybindings = [
 Earlier versions of this fork were configured differently:
 
 - `$env.REEDLINE_LSP_SERVERS` and the `REEDLINE_LS`, `REEDLINE_LS_LANG` and `REEDLINE_LS_SCHEME` variables no longer have any effect. Use `$env.config.diagnostics.servers`.
-- `command` is now a list, so `"nu-lint --lsp"` becomes `[nu-lint --lsp]`.
+- `command` is now a list, so `"nu-lint --lsp"` becomes `[nu-lint lsp]`.
 - The `OpenDiagnosticFixMenu` event no longer exists. Replace `{ send: OpenDiagnosticFixMenu }` with the `menu` event above.
 
 ## Examples
