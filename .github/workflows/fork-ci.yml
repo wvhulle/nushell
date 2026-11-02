@@ -1,0 +1,40 @@
+name: Fork CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  nu-diagnostics:
+    name: nu-diagnostics
+    if: github.repository == 'wvhulle/nushell'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+
+      - name: Fmt
+        run: cargo fmt --all --check
+
+      - name: Clippy
+        run: |
+          cargo clippy --package nu-diagnostics --all-targets -- -D warnings
+          cargo clippy --package nu-cli --features diagnostics --all-targets -- -D warnings
+
+      - name: Test
+        run: cargo test --package nu-diagnostics
