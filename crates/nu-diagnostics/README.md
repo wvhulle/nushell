@@ -18,6 +18,31 @@ The fix menu suggesting and applying fixes:
 
 ![Animation of the fix menu listing fixes and applying one](https://raw.githubusercontent.com/wvhulle/nushell/recordings/fix_menu.webp)
 
+_Disclaimer: This fork was made to make it easier for people to experiment with inline diagnostics in the terminal for Nushell. As far as I know this is not too common yet. For the most-up-to date mainline Nushell features and development, please refer to the original repository. Otherwise, go ahead and play around with this fork._
+
+## Installation
+
+The fork is packaged as `nu-inline-diagnostics`, but the installed binary is still called `nu`.
+
+Install a language protocol server (LSP server). I recommend `nu-lint`:
+
+```bash
+cargo install nu-lint
+```
+
+Build the main binary `nu` with a Rust compiler toolchain:
+
+- For Nix users: `nix run github:wvhulle/nushell` (or add this repo's flake to your system dependencies)
+- Otherwise, if you are on a more mainstream machine, install `rustup` and:
+
+```bash
+cargo install --git https://github.com/wvhulle/nushell
+```
+
+Keep in mind this will overwrite any other `nu` binary you have there (such as the official one).
+
+Then configure a language server as described in [usage](#usage). You can file issues related to incorrect lints and fixes at [nu-lint](https://codeberg.org/wvhulle/nu-lint).
+
 ## Usage
 
 List one or more language servers in `$env.config.diagnostics.servers`. Each record takes a `command` (required, the program and its arguments as a list) plus optional `language_id` (default `nushell`) and `uri_scheme` (default `file`):
@@ -75,10 +100,10 @@ $env.config.color_config.diagnostic_info = "blue"
 $env.config.color_config.diagnostic_hint = "dark_gray"
 ```
 
-The fix menu is listed in `$env.config.menus` with the layout `diagnostic_fix`. Its `marker`, `style.text` and `style.selected_text` can be changed like those of any other menu:
+The fix menu is listed in `$env.config.menus` with the layout `diagnostic_fix`. Its `marker`, `style.text` and `style.selected_text` can be changed like those of any other menu. Append with `++=`: when several menus share a `name`, the last one wins. Assigning with `=` replaces the whole list, which also drops the default menus and Tab completion:
 
 ```nu
-$env.config.menus = [
+$env.config.menus ++= [
     {
         name: diagnostic_fix_menu
         only_buffer_difference: true
@@ -105,10 +130,11 @@ nu --experimental-options '[inline-diagnostics=false]'
 
 `ctrl+.` is an ordinary Nushell keybinding named `diagnostic_fix_menu`, so it appears in `$env.config.keybindings` and follows the usual rules. Terminals only report `ctrl+.` with keyboard enhancement, so if it does nothing, try `$env.config.use_kitty_protocol = true`.
 
-To move it to another key, assign an entry with the same name. Use `=`, which merges by name. `++=` keeps both keys and warns about the shared name:
+To move it to another key, drop the default entry by name and append your own. Assigning a list of only your own entries with `=` replaces the defaults, which also turns off Tab completion:
 
 ```nu
-$env.config.keybindings = [
+$env.config.keybindings = $env.config.keybindings | where name != diagnostic_fix_menu
+$env.config.keybindings ++= [
     {
         name: diagnostic_fix_menu
         modifier: alt
